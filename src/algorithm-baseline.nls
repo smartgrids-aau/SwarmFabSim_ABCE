@@ -30,7 +30,21 @@
 to algo-init-baseline
   
   if DEBUG? [print "*** BASELINE: init"]
-    
+  
+  ; logging for ABC-E
+  ask lots with [l.active?] [
+    set l.swarm_table table:make
+    table:put l.swarm_table "H" nobody
+    table:put l.swarm_table "current_q" nobody
+  ]
+  ask queues [                                       
+    set q.swarm_table table:make                                    
+    table:put q.swarm_table "entropy" 0                     
+    table:put q.swarm_table "syntropy" 0                        
+    table:put q.swarm_table "q-length" 0                             
+    table:put q.swarm_table "fitness" 0                      
+  ]
+  
 end
 
 
@@ -102,6 +116,12 @@ to-report algo-choose-queue-baseline [ l ]
     set q min-one-of possible_qs [ length q.lotlist ]         ; choose randomly one of the queues from those with shortest queue length                                                              
   ]
   
+  ; logging for ABC-E
+  ask l
+  [
+    table:put l.swarm_table "current_q" q
+  ]
+  
   report q
   
 end
@@ -121,6 +141,7 @@ end
 to-report algo-take-from-queue-baseline [ m ]
   
   report algo-take-from-queue-basic m                         ; code re-use: FIFO queue
+  ; in basic -> table:put l.swarm_table "current_q" nobody
   
 end
 
@@ -145,7 +166,13 @@ end
 ;;  @context  -
 ;;
 to algo-tick-start-baseline
-  ; not used  
+  ; logging for ABC-E
+  ask lots with [l.active?] [
+    algo-calculate-H-ABC-E self algo_abc_bootstrapping
+  ]
+  ask queues [
+    algo-calculate-queue-fitness-ABC-E self algo_abc_bootstrapping
+  ]
 end
 
 

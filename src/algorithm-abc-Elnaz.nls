@@ -1,0 +1,336 @@
+;; this file implements a modified ABC algorithm that is specially design for this problem
+
+
+
+;;; Initialize the algorithm.
+;;  @input    -
+;;  @returns  -
+;;  @context  -
+;;
+to algo-init-ABC-E
+  ; mark lot's status (EB, SB, OB)
+  ; make placeholders for H for each lot
+  ask lots with [l.active?] [
+    set l.swarm_table table:make
+    table:put l.swarm_table "H" nobody
+    ; initially all bees are set to be onlookers
+    table:put l.swarm_table "role" "OB"
+    ; initially lot is in no qeueu
+    table:put l.swarm_table "current_q" nobody
+    ; initially lot is in no qeueu, so waited for 0 steps
+    table:put l.swarm_table "waits" 0
+  ]
+  ; make placeholders for Q for each queue
+  ask queues [                                       
+    set q.swarm_table table:make                           
+    table:put q.swarm_table "entropy" 0                     
+    table:put q.swarm_table "syntropy" 0                        
+    table:put q.swarm_table "q-length" 0                                  
+    table:put q.swarm_table "fitness" 0                      
+  ]
+end
+
+; returns lot's nth next process step
+to-report get-nth-next-process [ l n ]
+  let process_step ""                                
+  
+  ask l [
+    if (l.recipe_pointer < length l.recipe - n - 1) [ 
+      set process_step (item (l.recipe_pointer + n - 1) l.recipe)   ; nth next step in recipe 
+    ]
+  ]
+  
+  report process_step
+end
+
+;;; calculates eta for step n of the n-bootstrapping
+;;
+;;  @input    lot and n (lookahead step at which the eta is to be calculated)
+;;  @returns  eta for nth lookahead step for this lot
+;;  @context  -
+;;
+to-report algo-calculate-eta-ABC-E [ b b1 n ]
+  let next_nth_step_b get-nth-next-process b n
+  let next_nth_step_b1 get-nth-next-process b1 n
+  if next_nth_step_b = next_nth_step_b1 [
+    report 1
+  ]
+  report 0
+end
+
+;;; calculates H for a lot
+;;
+;;  @input    lot
+;;  @returns  nothing, updates H in lot's swarm_table
+;;  @context  -
+;;
+to algo-calculate-H-ABC-E [ b n ]
+  let H 0
+  let current_q table:get [l.swarm_table] of b "current_q"
+  ask lots with [l.active? and table:get l.swarm_table "current_q" = current_q][ ; lots in this queue
+    if self != myself [
+      let k 1
+      while [k < n]
+      [
+        set H H + (algo_abc_decay_factor ^ k) * (algo-calculate-eta-ABC-E myself self k) ; myself=b and self=b1
+        set k k + 1
+      ]
+    ]
+  ]
+  ask b
+  [
+    table:put l.swarm_table "H" H
+  ]
+end
+
+;;; evaluates Q value of a queue
+;;
+;;  designed to be called in every tick
+;;
+;;  @input    q (queue) to be evalouted
+;;  @returns  returns nothing, updates swarm_table
+;;  @context  -
+;;
+to algo-calculate-queue-fitness-ABC-E [ Q n ]
+  ask Q[
+    let q-length 0
+    let syntropy 0
+    ifelse q.isbatch?[
+      foreach table:values q.lotlist [sub-q ->
+        ask turtle-set sub-q [
+          set syntropy syntropy + table:get l.swarm_table "H"
+        ]
+        set q-length q-length + (length sub-q)
+      ]
+      ;print word word word word word "syntropy" syntropy "q-length" q-length "entropy" entropy
+    ][
+      set q-length length q.lotlist
+      ask turtle-set q.lotlist[
+        set syntropy syntropy + table:get l.swarm_table "H"
+      ]
+    ]
+    let max-syntropy q-length * (q-length - 1) * (algo_abc_bootstrapping - 1) + 1
+    set syntropy syntropy / max-syntropy
+    let entropy 1 - syntropy
+    table:put q.swarm_table "entropy" entropy
+    table:put q.swarm_table "syntropy" syntropy
+    table:put q.swarm_table "q-length" q-length
+    let bs [m.batch_size] of one-of [q.machines] of Q
+    table:put q.swarm_table "fitness" bs * entropy / (q-length + 1)
+  ]
+end
+
+;;; for SCHEDULING only: ABC-E algorithm chooses which queue a lot should go to, based on Q (Quality) metric of queues
+;;  @input    the lot to be queued
+;;  @returns  the chosen queue or nobody
+;;  @context  -
+;;
+to-report algo-choose-queue-ABC-E [ l ]
+  
+  let q ""
+  let PID get-next-process-step l   
+  ifelse [table:get l.swarm_table "role"] of l = "SB"
+  [
+    ; a scout bee choses queues randomly
+    set q one-of queues with [ q.mtype = PID ]
+  ]
+  [             
+    set q max-one-of queues with [ q.mtype = PID ] [table:get q.swarm_table "fitness"]
+  ]
+  ask l
+  [
+    table:put l.swarm_table "current_q" q
+    table:put l.swarm_table "role" "EB"
+    
+    table:put l.swarm_table "waits" 0 ; waits reset for this queue
+  ]
+  report q
+  
+end
+
+
+;;; SAME for DISPATCHING and SCHEDULING: called when the machine decides which lot to take from the queue based on lots' H values (using a heavy tailed distribution)
+;;
+;;  Basic Algo implements the following:
+;;    SINGLE STEP machines: based on lots' H values (using a heavy tailed distribution) 
+;;          BATCH machines: Lots with highest H values form batches;
+;;                          then the fullest batch is taken first (randomly if more than one),
+;;                          if there is no full batch, waits for the timer to run out;
+;;                          if a batch fills up in the meantime, takes it;
+;;                          if it runs into timeout it takes the biggest available batch
+;;
+;;  @input    machine
+;;  @returns  agentset of the taken lot(s) or empty agentset (no-turtles)
+;;  @context  machine
+;;
+to-report algo-take-from-queue-ABC-E [ m ] ; with help from algo-basic
+  
+  let l no-turtles                                            ; agentset of the taken lot(s) for return - init empty
+  
+  ask m [        
+    ifelse m.batch_size = 1 [                                 ; SINGLE STEP machine - has SIMPLE LIST as queue
+      
+      let qu [q.lotlist] of m.queue      
+      if not empty? qu [                                      ; lots in queue
+        let lots-in-q turtle-set qu
+        ask lots-in-q
+        [
+          let avg-fitness 0
+          let k 0
+          while [k < algo_abc_bootstrapping] [
+            set k k + 1
+            let PID get-nth-next-process l k
+            let temp-fitness 0
+            ask queues with [ q.mtype = PID ]
+            [
+              set temp-fitness temp-fitness + table:get q.swarm_table "fitness"
+            ]
+            set avg-fitness avg-fitness + (algo_abc_decay_factor ^ k) * temp-fitness
+          ]
+          
+          set avg-fitness avg-fitness / length qu
+          table:put l.swarm_table "avg-next-fitness" avg-fitness
+        ]
+        let lo min-one-of lots-in-q [table:get l.swarm_table "avg-next-fitness"]
+        remove-lot-from-queue m.queue lo                      ; remove from queue
+        set l turtle-set lo                                   ; convert single lot to agentset for return (compatibility /w batch)                
+        move-in l                                             ; update machine & lot statuses for chosen lot
+      ]
+    ][                                                        ; BATCH machine - has TABLE OF SUBQUEUES
+      
+      ifelse m.wait_timer < m.max_wait_batch [                ; look for full batch until timer runs out
+        
+        ifelse tablequeue-get-max-length >= m.batch_size [    ; FULL BATCH FOUND: take it & remember taken lots for return value                    
+          
+          set l tablequeue-take-batch-size m.batch_size       ; remove from queue & remember for return
+          move-in l                                           ; update machine & lot statuses for chosen lots          
+          set m.wait_timer 0                                  ; reset timer
+          
+        ][                                                    ; NO FULL BATCH: continue waiting          
+          set m.wait_timer m.wait_timer + 1
+        ]
+        
+      ][                                                      ; TIMER HAS RUN OUT -> take fullest of current batches
+        let maxlen tablequeue-get-max-length
+        
+        if maxlen > 0 [                                       ; sanity check: tablequeue not totally empty
+          
+          set l tablequeue-take-batch-size maxlen             ; remove from queue & remember for return
+          move-in l                                           ; update machine & lot statuses for chosen lots          
+          set m.wait_timer 0                                  ; reset timer
+        ]
+        
+      ]                                                       ; END TIMER HAS RUN OUT      
+    ]                                                         ; END BATCH machine
+  ]  
+  ask l [
+    ; lot is not employed at machine anymore
+    table:put l.swarm_table "role" "OB"
+    ; lot just left the queue
+    table:put l.swarm_table "current_q" nobody
+  ]
+  report l                                                    ; return agentset with taken lot(s) or empty agentset
+end
+
+
+
+;;; for DISPATCHING and SCHEDULING: called just before the machine frees the finished lots
+;;  make Employed bees onlooker or scout
+;;  @input    -
+;;  @returns  -
+;;  @context  machine
+;;
+to algo-move-out-ABC-E
+  
+  ; not used in basic algo
+  
+end
+
+
+
+;;; called once at start of each tick
+;;  where H (for lots) and Q (for queues) are being computed
+;;  @input    -
+;;  @returns  -
+;;  @context  -
+;;
+to algo-tick-start-ABC-E
+  ask lots with [l.active?] [
+    algo-calculate-H-ABC-E self algo_abc_bootstrapping
+    if table:get l.swarm_table "role" = "EB"
+    [
+      table:put l.swarm_table "waits" (table:get l.swarm_table "waits") + 1
+    ]
+  ]
+  ask queues [
+    algo-calculate-queue-fitness-ABC-E self algo_abc_bootstrapping
+  ]
+  ; set some bees as scout bees
+  let total-lots count lots with [l.active?]
+  let scouts count lots with [l.active? and table:get l.swarm_table "role" = "SB"]
+  let possible_scouts round(total-lots * scout_bees / 100) - scouts
+  set possible_scouts max list 0 possible_scouts
+  ask up-to-n-of possible_scouts lots with [l.active? and table:get l.swarm_table "role" = "OB"]
+  [
+    table:put l.swarm_table "role" "SB"
+  ]
+end
+
+
+
+;;; called once at end of each tick
+;;  @input    -
+;;  @returns  -
+;;  @context  -
+;;
+to algo-tick-end-ABC-E
+  
+  ; not used in basic algo
+  
+end
+
+
+;;; called once at the very end of each tick (after algo-tick-end-ABC-E)
+;;  plotting into the UI plot window "Plot" - called when plotmode = 2
+;;  
+;;  @input    -
+;;  @returns  -
+;;  @context  -
+;;
+to algo-do-plotting-ABC-E
+  set-current-plot "Plot"
+  
+  let max-H -1     ; initially small number
+  let min-H 10 ^ 6 ; initially big number
+  ask lots with [l.active?] [
+    let H table:get l.swarm_table "H"
+    set max-H max (list max-H H)
+    set min-H min (list min-H H)
+  ]
+  
+  let pname-max-H "max-H"
+  create-temporary-plot-pen pname-max-H
+  set-current-plot-pen pname-max-H
+  set-plot-pen-color red
+  plot max-H
+  
+  
+  let pname-min-H "min-H"
+  create-temporary-plot-pen pname-min-H
+  set-current-plot-pen pname-min-H
+  set-plot-pen-color blue
+  plot min-H
+end
+
+to-report report-queue-entropies
+  report [ table:get q.swarm_table "entropy" ] of queues
+end
+to-report report-queue-syntropies
+  report [ table:get q.swarm_table "syntropy" ] of queues
+end
+to-report report-queue-lengths
+  report [ table:get q.swarm_table "q-length" ] of queues
+end
+to-report report-wt-machines
+  report count machines with [m.wait_timer > 0]
+end

@@ -220,7 +220,6 @@ to go
         do-plotting "separate"
     ])
   ]
-
   tick
 end
 
@@ -730,7 +729,7 @@ CHOOSER
 allocation-strategy
 allocation-strategy
 "dispatching" "scheduling"
-0
+1
 
 CHOOSER
 155
@@ -739,8 +738,8 @@ CHOOSER
 56
 swarm-algorithm
 swarm-algorithm
-"demo" "basic" "baseline" "hormone"
-1
+"demo" "basic" "baseline" "hormone" "ABC-E"
+2
 
 TEXTBOX
 23
@@ -788,7 +787,7 @@ INPUTBOX
 300
 696
 config_fname
-config_DEMO_simu.txt
+config_SFAB_simu.txt
 1
 0
 String
@@ -828,6 +827,51 @@ Manual Setup (when no config file)
 11
 0.0
 1
+
+SLIDER
+370
+751
+554
+784
+algo_abc_bootstrapping
+algo_abc_bootstrapping
+2
+30
+10.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+452
+798
+632
+831
+algo_abc_decay_factor
+algo_abc_decay_factor
+0
+1
+0.96
+0.01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+515
+889
+687
+922
+scout_bees
+scout_bees
+0
+100
+1.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -1178,7 +1222,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.2.0
+NetLogo 6.4.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -1186,10 +1230,10 @@ NetLogo 6.2.0
   <experiment name="Experiment-ICAART-Baseline" repetitions="30" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
-    <final>do-end-calculations
+    <postRun>do-end-calculations
 file-open (word "results/SWILT-Simulation " behaviorspace-experiment-name "-kpis.csv")
 file-print (word behaviorspace-run-number  " " avg_ff " " avg_tard " " avg_util)
-file-close</final>
+file-close</postRun>
     <exitCondition>(count lots with [l.active?] = 0)</exitCondition>
     <metric>avg_queue_length</metric>
     <metric>max_queue_length</metric>
@@ -1216,10 +1260,10 @@ file-close</final>
   <experiment name="Experiment-LARGE-1-Baseline" repetitions="30" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
-    <final>do-end-calculations
+    <postRun>do-end-calculations
 file-open (word "results/SWILT-Simulation " behaviorspace-experiment-name "-kpis.csv")
 file-print (word behaviorspace-run-number  " " avg_ff " " avg_tard " " avg_util)
-file-close</final>
+file-close</postRun>
     <exitCondition>(count lots with [l.active?] = 0)</exitCondition>
     <metric>avg_queue_length</metric>
     <metric>max_queue_length</metric>
@@ -1246,10 +1290,10 @@ file-close</final>
   <experiment name="Experiment-MEDIUM-1-Baseline" repetitions="30" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
-    <final>do-end-calculations
+    <postRun>do-end-calculations
 file-open (word "results/SWILT-Simulation " behaviorspace-experiment-name "-kpis.csv")
 file-print (word behaviorspace-run-number  " " avg_ff " " avg_tard " " avg_util)
-file-close</final>
+file-close</postRun>
     <exitCondition>(count lots with [l.active?] = 0)</exitCondition>
     <metric>avg_queue_length</metric>
     <metric>max_queue_length</metric>
@@ -1276,10 +1320,10 @@ file-close</final>
   <experiment name="Experiment-SFAB-Baseline" repetitions="30" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
-    <final>do-end-calculations
+    <postRun>do-end-calculations
 file-open (word "results/SWILT-Simulation " behaviorspace-experiment-name "-kpis.csv")
 file-print (word behaviorspace-run-number  " " avg_ff " " avg_tard " " avg_util)
-file-close</final>
+file-close</postRun>
     <exitCondition>(count lots with [l.active?] = 0)</exitCondition>
     <metric>avg_queue_length</metric>
     <metric>max_queue_length</metric>
@@ -1306,10 +1350,10 @@ file-close</final>
   <experiment name="Experiment-ICAART-Basic" repetitions="30" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
-    <final>do-end-calculations
+    <postRun>do-end-calculations
 file-open (word "results/SWILT-Simulation " behaviorspace-experiment-name "-kpis.csv")
 file-print (word behaviorspace-run-number  " " avg_ff " " avg_tard " " avg_util)
-file-close</final>
+file-close</postRun>
     <exitCondition>(count lots with [l.active?] = 0)</exitCondition>
     <metric>avg_queue_length</metric>
     <metric>max_queue_length</metric>
@@ -1336,10 +1380,10 @@ file-close</final>
   <experiment name="Experiment-LARGE-1-Basic" repetitions="30" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
-    <final>do-end-calculations
+    <postRun>do-end-calculations
 file-open (word "results/SWILT-Simulation " behaviorspace-experiment-name "-kpis.csv")
 file-print (word behaviorspace-run-number  " " avg_ff " " avg_tard " " avg_util)
-file-close</final>
+file-close</postRun>
     <exitCondition>(count lots with [l.active?] = 0)</exitCondition>
     <metric>avg_queue_length</metric>
     <metric>max_queue_length</metric>
@@ -1366,10 +1410,10 @@ file-close</final>
   <experiment name="Experiment-MEDIUM-1-Basic" repetitions="30" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
-    <final>do-end-calculations
+    <postRun>do-end-calculations
 file-open (word "results/SWILT-Simulation " behaviorspace-experiment-name "-kpis.csv")
 file-print (word behaviorspace-run-number  " " avg_ff " " avg_tard " " avg_util)
-file-close</final>
+file-close</postRun>
     <exitCondition>(count lots with [l.active?] = 0)</exitCondition>
     <metric>avg_queue_length</metric>
     <metric>max_queue_length</metric>
@@ -1396,10 +1440,10 @@ file-close</final>
   <experiment name="Experiment-SFAB-Basic" repetitions="30" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
-    <final>do-end-calculations
+    <postRun>do-end-calculations
 file-open (word "results/SWILT-Simulation " behaviorspace-experiment-name "-kpis.csv")
 file-print (word behaviorspace-run-number  " " avg_ff " " avg_tard " " avg_util)
-file-close</final>
+file-close</postRun>
     <exitCondition>(count lots with [l.active?] = 0)</exitCondition>
     <metric>avg_queue_length</metric>
     <metric>max_queue_length</metric>
@@ -1426,10 +1470,10 @@ file-close</final>
   <experiment name="Experiment-ICAART-ABC" repetitions="30" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
-    <final>do-end-calculations
+    <postRun>do-end-calculations
 file-open (word "results/SWILT-Simulation " behaviorspace-experiment-name "-kpis.csv")
 file-print (word behaviorspace-run-number  " " avg_ff " " avg_tard " " avg_util)
-file-close</final>
+file-close</postRun>
     <exitCondition>(count lots with [l.active?] = 0)</exitCondition>
     <metric>avg_queue_length</metric>
     <metric>max_queue_length</metric>
@@ -1456,10 +1500,10 @@ file-close</final>
   <experiment name="Experiment-LARGE-1-ABC" repetitions="30" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
-    <final>do-end-calculations
+    <postRun>do-end-calculations
 file-open (word "results/SWILT-Simulation " behaviorspace-experiment-name "-kpis.csv")
 file-print (word behaviorspace-run-number  " " avg_ff " " avg_tard " " avg_util)
-file-close</final>
+file-close</postRun>
     <exitCondition>(count lots with [l.active?] = 0)</exitCondition>
     <metric>avg_queue_length</metric>
     <metric>max_queue_length</metric>
@@ -1486,10 +1530,10 @@ file-close</final>
   <experiment name="Experiment-MEDIUM-1-ABC" repetitions="30" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
-    <final>do-end-calculations
+    <postRun>do-end-calculations
 file-open (word "results/SWILT-Simulation " behaviorspace-experiment-name "-kpis.csv")
 file-print (word behaviorspace-run-number  " " avg_ff " " avg_tard " " avg_util)
-file-close</final>
+file-close</postRun>
     <exitCondition>(count lots with [l.active?] = 0)</exitCondition>
     <metric>avg_queue_length</metric>
     <metric>max_queue_length</metric>
@@ -1516,10 +1560,10 @@ file-close</final>
   <experiment name="Experiment-SFAB-ABC" repetitions="30" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
-    <final>do-end-calculations
+    <postRun>do-end-calculations
 file-open (word "results/SWILT-Simulation " behaviorspace-experiment-name "-kpis.csv")
 file-print (word behaviorspace-run-number  " " avg_ff " " avg_tard " " avg_util)
-file-close</final>
+file-close</postRun>
     <exitCondition>(count lots with [l.active?] = 0)</exitCondition>
     <metric>avg_queue_length</metric>
     <metric>max_queue_length</metric>
@@ -1546,10 +1590,10 @@ file-close</final>
   <experiment name="Experiment-ICAART-Ant" repetitions="30" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
-    <final>do-end-calculations
+    <postRun>do-end-calculations
 file-open (word "results/SWILT-Simulation " behaviorspace-experiment-name "-kpis.csv")
 file-print (word behaviorspace-run-number  " " avg_ff " " avg_tard " " avg_util)
-file-close</final>
+file-close</postRun>
     <exitCondition>(count lots with [l.active?] = 0)</exitCondition>
     <metric>avg_queue_length</metric>
     <metric>max_queue_length</metric>
@@ -1576,10 +1620,10 @@ file-close</final>
   <experiment name="Experiment-LARGE-1-Ant" repetitions="30" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
-    <final>do-end-calculations
+    <postRun>do-end-calculations
 file-open (word "results/SWILT-Simulation " behaviorspace-experiment-name "-kpis.csv")
 file-print (word behaviorspace-run-number  " " avg_ff " " avg_tard " " avg_util)
-file-close</final>
+file-close</postRun>
     <exitCondition>(count lots with [l.active?] = 0)</exitCondition>
     <metric>avg_queue_length</metric>
     <metric>max_queue_length</metric>
@@ -1606,10 +1650,10 @@ file-close</final>
   <experiment name="Experiment-MEDIUM-1-Ant" repetitions="30" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
-    <final>do-end-calculations
+    <postRun>do-end-calculations
 file-open (word "results/SWILT-Simulation " behaviorspace-experiment-name "-kpis.csv")
 file-print (word behaviorspace-run-number  " " avg_ff " " avg_tard " " avg_util)
-file-close</final>
+file-close</postRun>
     <exitCondition>(count lots with [l.active?] = 0)</exitCondition>
     <metric>avg_queue_length</metric>
     <metric>max_queue_length</metric>
@@ -1636,10 +1680,10 @@ file-close</final>
   <experiment name="Experiment-SFAB-Ant" repetitions="30" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
-    <final>do-end-calculations
+    <postRun>do-end-calculations
 file-open (word "results/SWILT-Simulation " behaviorspace-experiment-name "-kpis.csv")
 file-print (word behaviorspace-run-number  " " avg_ff " " avg_tard " " avg_util)
-file-close</final>
+file-close</postRun>
     <exitCondition>(count lots with [l.active?] = 0)</exitCondition>
     <metric>avg_queue_length</metric>
     <metric>max_queue_length</metric>
@@ -1666,10 +1710,10 @@ file-close</final>
   <experiment name="Experiment-ICAART-Slime" repetitions="30" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
-    <final>do-end-calculations
+    <postRun>do-end-calculations
 file-open (word "results/SWILT-Simulation " behaviorspace-experiment-name "-kpis.csv")
 file-print (word behaviorspace-run-number  " " avg_ff " " avg_tard " " avg_util)
-file-close</final>
+file-close</postRun>
     <exitCondition>(count lots with [l.active?] = 0)</exitCondition>
     <metric>avg_queue_length</metric>
     <metric>max_queue_length</metric>
@@ -1696,10 +1740,10 @@ file-close</final>
   <experiment name="Experiment-LARGE-1-Slime" repetitions="30" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
-    <final>do-end-calculations
+    <postRun>do-end-calculations
 file-open (word "results/SWILT-Simulation " behaviorspace-experiment-name "-kpis.csv")
 file-print (word behaviorspace-run-number  " " avg_ff " " avg_tard " " avg_util)
-file-close</final>
+file-close</postRun>
     <exitCondition>(count lots with [l.active?] = 0)</exitCondition>
     <metric>avg_queue_length</metric>
     <metric>max_queue_length</metric>
@@ -1726,10 +1770,10 @@ file-close</final>
   <experiment name="Experiment-MEDIUM-1-Slime" repetitions="30" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
-    <final>do-end-calculations
+    <postRun>do-end-calculations
 file-open (word "results/SWILT-Simulation " behaviorspace-experiment-name "-kpis.csv")
 file-print (word behaviorspace-run-number  " " avg_ff " " avg_tard " " avg_util)
-file-close</final>
+file-close</postRun>
     <exitCondition>(count lots with [l.active?] = 0)</exitCondition>
     <metric>avg_queue_length</metric>
     <metric>max_queue_length</metric>
@@ -1756,10 +1800,10 @@ file-close</final>
   <experiment name="Experiment-SFAB-Slime" repetitions="30" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
-    <final>do-end-calculations
+    <postRun>do-end-calculations
 file-open (word "results/SWILT-Simulation " behaviorspace-experiment-name "-kpis.csv")
 file-print (word behaviorspace-run-number  " " avg_ff " " avg_tard " " avg_util)
-file-close</final>
+file-close</postRun>
     <exitCondition>(count lots with [l.active?] = 0)</exitCondition>
     <metric>avg_queue_length</metric>
     <metric>max_queue_length</metric>
@@ -1786,10 +1830,10 @@ file-close</final>
   <experiment name="Experiment-ICAART-Hormone" repetitions="30" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
-    <final>do-end-calculations
+    <postRun>do-end-calculations
 file-open (word "results/SWILT-Simulation " behaviorspace-experiment-name "-kpis.csv")
 file-print (word behaviorspace-run-number  " " avg_ff " " avg_tard " " avg_util)
-file-close</final>
+file-close</postRun>
     <exitCondition>(count lots with [l.active?] = 0)</exitCondition>
     <metric>avg_queue_length</metric>
     <metric>max_queue_length</metric>
@@ -1816,10 +1860,10 @@ file-close</final>
   <experiment name="Experiment-LARGE-1-Hormone" repetitions="30" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
-    <final>do-end-calculations
+    <postRun>do-end-calculations
 file-open (word "results/SWILT-Simulation " behaviorspace-experiment-name "-kpis.csv")
 file-print (word behaviorspace-run-number  " " avg_ff " " avg_tard " " avg_util)
-file-close</final>
+file-close</postRun>
     <exitCondition>(count lots with [l.active?] = 0)</exitCondition>
     <metric>avg_queue_length</metric>
     <metric>max_queue_length</metric>
@@ -1846,10 +1890,10 @@ file-close</final>
   <experiment name="Experiment-MEDIUM-1-Hormone" repetitions="30" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
-    <final>do-end-calculations
+    <postRun>do-end-calculations
 file-open (word "results/SWILT-Simulation " behaviorspace-experiment-name "-kpis.csv")
 file-print (word behaviorspace-run-number  " " avg_ff " " avg_tard " " avg_util)
-file-close</final>
+file-close</postRun>
     <exitCondition>(count lots with [l.active?] = 0)</exitCondition>
     <metric>avg_queue_length</metric>
     <metric>max_queue_length</metric>
@@ -1876,10 +1920,10 @@ file-close</final>
   <experiment name="Experiment-SFAB-Hormone" repetitions="30" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
-    <final>do-end-calculations
+    <postRun>do-end-calculations
 file-open (word "results/SWILT-Simulation " behaviorspace-experiment-name "-kpis.csv")
 file-print (word behaviorspace-run-number  " " avg_ff " " avg_tard " " avg_util)
-file-close</final>
+file-close</postRun>
     <exitCondition>(count lots with [l.active?] = 0)</exitCondition>
     <metric>avg_queue_length</metric>
     <metric>max_queue_length</metric>
@@ -1895,6 +1939,155 @@ file-close</final>
     </enumeratedValueSet>
     <enumeratedValueSet variable="config_fname">
       <value value="&quot;config_SFAB_simu.txt&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="DEBUG?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="VIS?">
+      <value value="false"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="SFAB_Baseline_ABCE" repetitions="30" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <exitCondition>(count lots with [l.active?] = 0)</exitCondition>
+    <metric>avg_queue_length</metric>
+    <metric>max_queue_length</metric>
+    <metric>min_queue_length</metric>
+    <metric>count lots with [l.active?]</metric>
+    <metric>mean [l.end_time / l.RPT] of lots</metric>
+    <metric>mean [l.end_time - l.RPT] of lots</metric>
+    <metric>mean [l.RPT] of lots</metric>
+    <enumeratedValueSet variable="swarm-algorithm">
+      <value value="&quot;baseline&quot;"/>
+      <value value="&quot;ABC-E&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="allocation-strategy">
+      <value value="&quot;scheduling&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Config_File?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="config_fname">
+      <value value="&quot;config_SFAB_simu.txt&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="DEBUG?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="VIS?">
+      <value value="false"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="MFAB_Baseline_ABCE" repetitions="30" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <exitCondition>(count lots with [l.active?] = 0)</exitCondition>
+    <metric>avg_queue_length</metric>
+    <metric>max_queue_length</metric>
+    <metric>min_queue_length</metric>
+    <metric>count lots with [l.active?]</metric>
+    <metric>mean [l.end_time / l.RPT] of lots</metric>
+    <metric>mean [l.end_time - l.RPT] of lots</metric>
+    <metric>mean [l.RPT] of lots</metric>
+    <enumeratedValueSet variable="swarm-algorithm">
+      <value value="&quot;baseline&quot;"/>
+      <value value="&quot;ABC-E&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="allocation-strategy">
+      <value value="&quot;scheduling&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Config_File?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="config_fname">
+      <value value="&quot;config_MEDIUM-1_simu.txt&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="DEBUG?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="VIS?">
+      <value value="false"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="LFAB_Baseline_ABCE" repetitions="30" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <exitCondition>(count lots with [l.active?] = 0)</exitCondition>
+    <metric>avg_queue_length</metric>
+    <metric>max_queue_length</metric>
+    <metric>min_queue_length</metric>
+    <metric>count lots with [l.active?]</metric>
+    <metric>mean [l.end_time / l.RPT] of lots</metric>
+    <metric>mean [l.end_time - l.RPT] of lots</metric>
+    <metric>mean [l.RPT] of lots</metric>
+    <enumeratedValueSet variable="swarm-algorithm">
+      <value value="&quot;baseline&quot;"/>
+      <value value="&quot;ABC-E&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="allocation-strategy">
+      <value value="&quot;scheduling&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Config_File?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="config_fname">
+      <value value="&quot;config_ICAART_simu.txt&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="DEBUG?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="VIS?">
+      <value value="false"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="SFAB_Baseline_ABCE_all_steps" repetitions="10" sequentialRunOrder="false" runMetricsEveryStep="true">
+    <setup>setup</setup>
+    <go>go</go>
+    <exitCondition>(count lots with [l.active?] = 0)</exitCondition>
+    <metric>[l.end_time] of lots</metric>
+    <metric>[l.RPT] of lots</metric>
+    <metric>report-queue-entropies</metric>
+    <metric>report-queue-syntropies</metric>
+    <metric>report-queue-lengths</metric>
+    <metric>report-wt-machines</metric>
+    <enumeratedValueSet variable="swarm-algorithm">
+      <value value="&quot;baseline&quot;"/>
+      <value value="&quot;ABC-E&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="allocation-strategy">
+      <value value="&quot;scheduling&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Config_File?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="config_fname">
+      <value value="&quot;config_SFAB_simu.txt&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="DEBUG?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="VIS?">
+      <value value="false"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="SMLFAB_Baseline_ABCE_all_steps" repetitions="10" sequentialRunOrder="false" runMetricsEveryStep="true">
+    <setup>setup</setup>
+    <go>go</go>
+    <exitCondition>(count lots with [l.active?] = 0)</exitCondition>
+    <metric>max report-queue-lengths</metric>
+    <enumeratedValueSet variable="swarm-algorithm">
+      <value value="&quot;baseline&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="allocation-strategy">
+      <value value="&quot;scheduling&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Config_File?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="config_fname">
+      <value value="&quot;config_SFAB_simu.txt&quot;"/>
+      <value value="&quot;config_MEDIUM-1_simu.txt&quot;"/>
+      <value value="&quot;config_ICAART_simu.txt&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="DEBUG?">
       <value value="false"/>

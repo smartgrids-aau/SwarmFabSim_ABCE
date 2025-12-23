@@ -11,7 +11,7 @@
 ;;
 to algo-init-basic
   
-  ; not used in basic algo
+  algo-init-baseline ; logging for ABC-E
   
 end
 
@@ -90,7 +90,13 @@ to-report algo-take-from-queue-basic [ m ]
       ]                                                       ; END TIMER HAS RUN OUT      
     ]                                                         ; END BATCH machine
   ]  
-
+  
+  ; logging for ABC-E
+  ask l
+  [
+    table:put l.swarm_table "current_q" nobody
+  ]
+  
   report l                                                    ; return agentset with taken lot(s) or empty agentset
   
 end
